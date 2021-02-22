@@ -26,7 +26,10 @@ def cleanAge(age):
         elif re.match('[0-9][0-9][-|+]$', row): # '80+', '80-'
             age.loc[index] = int(row[0]+row[1])
         else: # converts floats to ints for all other cases
-            age.loc[index] = int(float(row))
+            try:
+                age.loc[index] = int(float(row))
+            except:
+                age.loc[index] = None
 
     new_age_col_unimputed = age.copy()
     age = age.dropna()

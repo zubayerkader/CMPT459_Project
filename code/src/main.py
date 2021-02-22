@@ -7,9 +7,11 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from helper1 import *
 
-def cleanImpute(dir):
+def cleanImpute(dir, out):# pp = 0):
     cases_train = pd.read_csv(dir)
-    cases_train = cases_train.head(10000)
+
+    # print ("!!!!!!!!!!!!!!",  cases_train.shape[0])
+    # cases_train = cases_train.head(10000)
 
     # remove columns: additional_information and source
     cases_train = cases_train.drop(['additional_information', 'source'], axis=1)
@@ -22,10 +24,7 @@ def cleanImpute(dir):
     # Impute Sex
     cases_train = imputeSex(cases_train)
 
-    # Remove rows with missing latitude longitude
-    latlong = cases_train[["latitude", "longitude"]]
-    empty_idx = latlong[latlong.isnull().any(axis =1)].index
-    cases_train = cases_train.drop(empty_idx)  #might crash.........................................
+
 
     # Impute Country
     taiwan = cases_train[cases_train.province == 'Taiwan'].index
@@ -49,11 +48,25 @@ def cleanImpute(dir):
     nan_confirm['date_confirmation'] = nan_confirm.apply(imputeDateConfrm, axis=1, cases_train=cases_train)
     cases_train['date_confirmation'].iloc[nan_confirm.index] = nan_confirm['date_confirmation']
 
+    # Remove rows with missing latitude longitude
+    latlong = cases_train[["latitude", "longitude"]]
+    empty_idx = latlong[latlong.isnull().any(axis =1)].index
+    print(empty_idx)
+    cases_train = cases_train.drop(empty_idx)  #might crash.........................................
+
     print(cases_train)
+    cases_train.to_csv(out,index=False)
+
+    # if pp == 1:
+    #     ppp = cases_train.drop(['outcome'], axis=1)
+    # else:
+    #     ppp = cases_train
+    # ppp.dropna()
+    # print ("!!!!!!!!!!!!!!",  ppp.shape[0])
 
 def main():
-    cases_train = cleanImpute('./../data/cases_train.csv')
-    cases_test = cleanImpute('./../data/cases_test.csv')
+    cases_train = cleanImpute('../data/cases_train.csv', '../results/cases_train_processed.csv')
+    cases_test = cleanImpute('../data/cases_test.csv', '../results/cases_test_processed.csv')#, pp= 1)
 
 
 if __name__ == "__main__":
