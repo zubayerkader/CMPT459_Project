@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from helper1 import *
 
-def cleanImpute(dir, out):# pp = 0):
+def cleanImpute(dir):# pp = 0):
     cases_train = pd.read_csv(dir)
 
     # print ("!!!!!!!!!!!!!!",  cases_train.shape[0])
@@ -54,8 +54,7 @@ def cleanImpute(dir, out):# pp = 0):
     print(empty_idx)
     cases_train = cases_train.drop(empty_idx)  #might crash.........................................
 
-    print(cases_train)
-    cases_train.to_csv(out,index=False)
+    # print(cases_train)
     return cases_train
     # if pp == 1:
     #     ppp = cases_train.drop(['outcome'], axis=1)
@@ -65,12 +64,13 @@ def cleanImpute(dir, out):# pp = 0):
     # print ("!!!!!!!!!!!!!!",  ppp.shape[0])
 
 def main():
-    # cases_train = cleanImpute('../data/cases_train.csv', '../results/cases_train_processed.csv')
-    # cases_test = cleanImpute('../data/cases_test.csv', '../results/cases_test_processed.csv')#, pp= 1)
+    # cases_train = cleanImpute('../data/cases_train.csv')
+    # cases_test = cleanImpute('../data/cases_test.csv')
 
     cases_train = pd.read_csv('../results/cases_train_processed.csv')
     cases_test = pd.read_csv('../results/cases_test_processed.csv')
 
+    # handling lat and long outliers
     probable_outliers = cases_train[cases_train['longitude'].between(-40, -20)]
     probable_outliers = probable_outliers[probable_outliers['latitude'].between(-40,-20)]
     probable_outliers_idx = probable_outliers.index
@@ -82,8 +82,80 @@ def main():
         long_m = match_area['longitude'].mean()
         cases_train["latitude"].iloc[i] = lat_m
         cases_train["longitude"].iloc[i] = long_m
-
     # print(cases_train.iloc[probable_outliers.index])
+
+    # transforming location
+    location = pd.read_csv('../data/location.csv')
+
+    US = location[location['Country_Region'] == 'US']
+
+    # print(US)
+    agg = {
+        'Lat': 'mean',
+        'Long_': 'mean',
+        'Confirmed': 'sum', 
+        'Deaths': 'sum', 
+        'Recovered': 'sum', 
+        'Active': 'sum', 
+        'Incidence_Rate': 'mean',
+        # 'Case-Fatality_Ratio': ['Deaths/Confirmed'],
+    }
+
+    US_grouped = US.groupby('Province_State').agg(agg)
+    US_grouped['Case-Fatality_Ratio'] = (US_grouped['Deaths']/US_grouped['Confirmed'])*100
+    US_grouped.reset_index(level=0, inplace=True)
+    US_grouped['Combined_Key'] = US_grouped['Province_State'] + ', US'
+    US_grouped['Last_Update'] = '2020-09-20 4:22'
+    US_grouped['Country_Region'] = 'US'
+
+    # print (US_grouped)
+
+
+    # print(location[location['Country_Region'] == 'US'])
+
+    location = location[location['Country_Region'] != 'US']
+
+    location = pd.concat([location, US_grouped]).sort_values(by=['Country_Region']).reset_index(drop=True)
+
+    location.to_csv('../results/location_transformed.csv',index=False)
+
+    print(location)
+
+    # cases_train.to_csv('../results/cases_train_processed.csv',index=False)
+    # cases_test.to_csv('../results/cases_test_processed.csv',index=False)
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
