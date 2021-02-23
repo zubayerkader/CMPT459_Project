@@ -56,7 +56,7 @@ def cleanImpute(dir, out):# pp = 0):
 
     print(cases_train)
     cases_train.to_csv(out,index=False)
-
+    return cases_train
     # if pp == 1:
     #     ppp = cases_train.drop(['outcome'], axis=1)
     # else:
@@ -65,9 +65,25 @@ def cleanImpute(dir, out):# pp = 0):
     # print ("!!!!!!!!!!!!!!",  ppp.shape[0])
 
 def main():
-    cases_train = cleanImpute('../data/cases_train.csv', '../results/cases_train_processed.csv')
-    cases_test = cleanImpute('../data/cases_test.csv', '../results/cases_test_processed.csv')#, pp= 1)
+    # cases_train = cleanImpute('../data/cases_train.csv', '../results/cases_train_processed.csv')
+    # cases_test = cleanImpute('../data/cases_test.csv', '../results/cases_test_processed.csv')#, pp= 1)
 
+    cases_train = pd.read_csv('../results/cases_train_processed.csv')
+    cases_test = pd.read_csv('../results/cases_test_processed.csv')
+
+    probable_outliers = cases_train[cases_train['longitude'].between(-40, -20)]
+    probable_outliers = probable_outliers[probable_outliers['latitude'].between(-40,-20)]
+    probable_outliers_idx = probable_outliers.index
+    for i in probable_outliers_idx:
+        province = probable_outliers['province'][i]
+        country = probable_outliers['country'][i]
+        match_area = cases_train[((cases_train['province'] == province) & (cases_train['country'] == country))]
+        lat_m = match_area['latitude'].mean()
+        long_m = match_area['longitude'].mean()
+        cases_train["latitude"].iloc[i] = lat_m
+        cases_train["longitude"].iloc[i] = long_m
+
+    # print(cases_train.iloc[probable_outliers.index])
 
 if __name__ == "__main__":
     main()
