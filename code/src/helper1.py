@@ -83,3 +83,23 @@ def imputeDateConfrm(row, cases_train):
         return "unknown"
     else:
         return dc
+
+def deg2rad(deg):
+    # Inspired from stackoverflow link given below:
+    #https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula/21623206
+    return deg * (np.pi/180)
+
+def distance (city, stations):
+    # Inspired from stackoverflow link given below:
+    #https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula/21623206
+    lat1 = city.latitude
+    lat2 = stations['Lat']
+    lon1 = city.longitude
+    lon2 = stations['Long_']
+    R = 6371
+    dLat = deg2rad(lat2-lat1)
+    dLon = deg2rad(lon2-lon1)
+    a = np.sin(dLat/2) * np.sin(dLat/2) + np.cos(deg2rad(lat1)) * np.cos(deg2rad(lat2)) * np.sin(dLon/2) * np.sin(dLon/2)
+    c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
+    d = R * c
+    return d*1000

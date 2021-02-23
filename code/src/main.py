@@ -63,12 +63,34 @@ def cleanImpute(dir):# pp = 0):
     # ppp.dropna()
     # print ("!!!!!!!!!!!!!!",  ppp.shape[0])
 
-def main():
-    # cases_train = cleanImpute('../data/cases_train.csv')
-    # cases_test = cleanImpute('../data/cases_test.csv')
 
-    cases_train = pd.read_csv('../results/cases_train_processed.csv')
-    cases_test = pd.read_csv('../results/cases_test_processed.csv')
+def joinCasesLocation(cases_train, location, typee= 'train'):
+    if typee == 'test':
+        cases_train = cases_train.drop(['outcome'], axis=1)
+    # joining cases and location datasets
+    joined = pd.merge(cases_train, location,  how='left', left_on=['province','country'], right_on = ['Province_State','Country_Region'])
+    nan_idx = joined[joined.isnull().any(axis=1)].index
+    joined_nan = cases_train.iloc[nan_idx]
+    distances = joined_nan.apply(distance, axis=1, stations=location)
+    smallest = distances.idxmin(axis=1)
+    smallest = pd.DataFrame(smallest, columns = ["closest"])
+    smallest_dist_temp = smallest.join(location, on = "closest" , how = 'left')
+    smallest_dist_temp = smallest_dist_temp.join(joined_nan,  how = 'left')
+    smallest_dist_temp = smallest_dist_temp.drop(['closest'], axis=1)
+    joined = joined.dropna()
+    joined = pd.concat([joined, smallest_dist_temp])
+    joined = joined.drop(['Province_State', 'Country_Region', 'Lat', 'Long_', 'Last_Update', 'Combined_Key'], axis=1)
+    joined.to_csv('./joined.csv', index=False)
+    if typee == 'test':
+        cases_train['outcome'] = np.nan
+    # print(joined.dropna().shape[0])
+
+    print(joined)
+    return joined
+
+def main():
+    cases_train = cleanImpute('../data/cases_train.csv')
+    cases_test = cleanImpute('../data/cases_test.csv')
 
     # handling lat and long outliers
     probable_outliers = cases_train[cases_train['longitude'].between(-40, -20)]
@@ -86,76 +108,34 @@ def main():
 
     # transforming location
     location = pd.read_csv('../data/location.csv')
-
     US = location[location['Country_Region'] == 'US']
-
-    # print(US)
     agg = {
         'Lat': 'mean',
         'Long_': 'mean',
-        'Confirmed': 'sum', 
-        'Deaths': 'sum', 
-        'Recovered': 'sum', 
-        'Active': 'sum', 
+        'Confirmed': 'sum',
+        'Deaths': 'sum',
+        'Recovered': 'sum',
+        'Active': 'sum',
         'Incidence_Rate': 'mean',
-        # 'Case-Fatality_Ratio': ['Deaths/Confirmed'],
     }
-
     US_grouped = US.groupby('Province_State').agg(agg)
     US_grouped['Case-Fatality_Ratio'] = (US_grouped['Deaths']/US_grouped['Confirmed'])*100
     US_grouped.reset_index(level=0, inplace=True)
     US_grouped['Combined_Key'] = US_grouped['Province_State'] + ', US'
     US_grouped['Last_Update'] = '2020-09-20 4:22'
     US_grouped['Country_Region'] = 'US'
-
-    # print (US_grouped)
-
-
-    # print(location[location['Country_Region'] == 'US'])
-
     location = location[location['Country_Region'] != 'US']
-
     location = pd.concat([location, US_grouped]).sort_values(by=['Country_Region']).reset_index(drop=True)
-
     location.to_csv('../results/location_transformed.csv',index=False)
 
-    print(location)
+    # joined
+    cases_train_processed = joinCasesLocation(cases_train, location, typee = "train")
+    cases_test_processed = joinCasesLocation(cases_test, location, typee = "test")
 
-    # cases_train.to_csv('../results/cases_train_processed.csv',index=False)
-    # cases_test.to_csv('../results/cases_test_processed.csv',index=False)
+
+    cases_train_processed.to_csv('../results/cases_train_processed.csv',index=False)
+    cases_test_processed.to_csv('../results/cases_test_processed.csv',index=False)
+
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
