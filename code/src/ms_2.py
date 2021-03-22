@@ -8,10 +8,7 @@ from sklearn import preprocessing
 from sklearn.pipeline import Pipeline
 from sklearn.compose import make_column_transformer
 from sklearn.preprocessing import OneHotEncoder
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import cross_val_score
-from sklearn import metrics
+from sklearn.preprocessing import MinMaxScaler
 import datetime as dt
 from tune_params import *
 # def convert_to_number(data):
@@ -30,18 +27,17 @@ from tune_params import *
 #     data=data.fillna(-999)
 #     return data
 
-def evaluation(x,y):
-    print("ACCURACY SCORE ",accuracy_score(x,y))
-    print("PRECSION SCORE ",metrics.precision_score(x,y,average='macro'))
-    print("RECALL SCORE ",metrics.recall_score(x,y,average='macro'))
-    print("Confusing matrix ")
-    print(confusion_matrix(x,y))
+#def evaluation(x,y):
+ #   print("ACCURACY SCORE ",accuracy_score(x,y))
+ #   print("PRECSION SCORE ",metrics.precision_score(x,y,average='macro'))
+  #  print("RECALL SCORE ",metrics.recall_score(x,y,average='macro'))
+   # print("Confusing matrix ")
+    #print(confusion_matrix(x,y))
 
-def main():
-    df = pd.read_csv("../results/cases_train_processed.csv")
-    # df = df.head(5000)
+def Knn(df):
     df = df.loc[:, df.columns != 'province']
     df = df.loc[:, df.columns != 'country']
+    print(df)
     df['date_confirmation'] = pd.to_datetime(df['date_confirmation'])
     df['date_confirmation'] =(df['date_confirmation'] - dt.datetime(2020,1,1)).dt.total_seconds()
     # df = df.loc[:, df.columns != 'date_confirmation']
@@ -49,7 +45,6 @@ def main():
     # df_2 = df.select_dtypes(include=[object])
     df_2 = df.loc[:, df.columns == 'sex']
     print (df_2)
-    from sklearn import preprocessing
     # le = preprocessing.LabelEncoder()
     # df_3 = df_2.apply(le.fit_transform)
     # print (df_3)
@@ -70,7 +65,6 @@ def main():
     # std_scaler = StandardScaler()
     # X = pd.DataFrame(std_scaler.fit_transform(X), columns=X.columns)
 
-    from sklearn.preprocessing import MinMaxScaler
     min_max_scaler = preprocessing.MinMaxScaler()
     X = pd.DataFrame(min_max_scaler.fit_transform(X), columns=X.columns)
 
@@ -83,30 +77,37 @@ def main():
     }
     tune_params(X, params, loops=10, model_name="KNeighborsClassifier")
 
+def Random_forest(df):
+    le = preprocessing.LabelEncoder()     
+    string_cols = ['sex','province','country','date_confirmation','outcome']
+    for col in string_cols:
+        df[col] = le.fit_transform(df[col])
+    params = {
+    	"n_estimators": 100,
+    	"max_depth": 2,
+        "n_estimators_increment":100,
+        "max_depth_increment":2
+    }
+    tune_params(df, params, loops=10, model_name="RandomForestClassifier")
+    # remember there is a le.inverse_transform(y) to get back the string outcome
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def Ada_Boosting(df):
+    le = preprocessing.LabelEncoder()     
+    string_cols = ['sex','province','country','date_confirmation','outcome']
+    for col in string_cols:
+        df[col] = le.fit_transform(df[col])
+    params = {
+    	"n_estimators": 100,
+        "n_estimators_increment":100,
+    }
+    tune_params(df, params, loops=10, model_name="AdaBoostClassifier")
+    # remember there is a le.inverse_transform(y) to get back the string outcome
+    
+def main():
+    df = pd.read_csv("../results/cases_train_processed.csv")
+    Random_forest(df)
+    Ada_Boosting(df)
+    Knn(df)
 
 
 
