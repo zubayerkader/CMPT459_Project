@@ -13,6 +13,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import cross_val_score
 from sklearn import metrics
 import datetime as dt
+from tune_params import *
 # def convert_to_number(data):
 #     number = preprocessing.LabelEncoder()
 #     data['outcome'] = number.fit_transform(data.outcome)
@@ -49,37 +50,21 @@ def main():
     df_2 = df.loc[:, df.columns == 'sex']
     print (df_2)
     from sklearn import preprocessing
-    le = preprocessing.LabelEncoder()
-    df_3 = df_2.apply(le.fit_transform)
-    print (df_3)
+    # le = preprocessing.LabelEncoder()
+    # df_3 = df_2.apply(le.fit_transform)
+    # print (df_3)
     enc = preprocessing.OneHotEncoder()
-    enc.fit(df_3)
-    onehotlabels = enc.transform(df_3).toarray()
+    enc.fit(df_2)
+    onehotlabels = enc.transform(df_2).toarray()
     print (onehotlabels)
-    df['sex_0'] = onehotlabels[:, 0]
-    df['sex_1'] = onehotlabels[:, 1]
+    df['female'] = onehotlabels[:, 0]
+    df['male'] = onehotlabels[:, 1]
     print (df)
     df = df.loc[:, df.columns != 'sex']
 
-
-    # from sklearn.preprocessing import MultiLabelBinarizer
-    # mlb = MultiLabelBinarizer()
-    # shift = mlb.fit_transform(df['sex'])
-    # print (shift)
-    # df['sex_0'] = shift[:, 0]
-    # df['sex_1'] = shift[:, 1]
-    #
-    # print (df)
-
-
-
-
-    # print(df)
-
-    # df =
-
     X = df.loc[:, df.columns != 'outcome']
     y = df['outcome']
+
 
     # from sklearn.preprocessing import StandardScaler
     # std_scaler = StandardScaler()
@@ -89,24 +74,49 @@ def main():
     min_max_scaler = preprocessing.MinMaxScaler()
     X = pd.DataFrame(min_max_scaler.fit_transform(X), columns=X.columns)
 
+    X['outcome'] = y
     print (X)
 
-
-    X_train, X_validation, Y_train, Y_validation = train_test_split(X, y, test_size=0.2, random_state=1)
-    #
-    # print(X_train)
-    # print(X_validation)
-    # print(Y_train)
-    # print(Y_validation)
-
-    knn = KNeighborsClassifier(n_neighbors=8, weights = 'distance')
-    knn.fit(X_train,Y_train)
-
-    print(knn.score(X_train,Y_train))
-    print(knn.score(X_validation,Y_validation))
+    params = {
+    	"n_neighbors": 5,
+    	"n_neighbors_increment": 1,
+    }
+    tune_params(X, params, loops=10, model_name="KNeighborsClassifier")
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###---------------------------------------------------------------------------------ITRAZA
 #
 # #--------------------------------------------CHANE ENCODER------------------------------
 #     le = preprocessing.LabelEncoder()

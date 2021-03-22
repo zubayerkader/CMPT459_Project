@@ -7,8 +7,8 @@ from sklearn.ensemble import AdaBoostClassifier
 
 def tune_params(data, params, loops, model_name):
 
-	X = df.loc[:, df.columns != 'outcome']
-	y = df['outcome']
+	X = data.loc[:, data.columns != 'outcome']
+	y = data['outcome']
 	X_train, X_validation, Y_train, Y_validation = train_test_split(X, y, test_size=0.2, random_state=1)
 
 	if model_name == "RandomForestClassifier":
@@ -51,7 +51,13 @@ def tune_params(data, params, loops, model_name):
 		plt.xticks(rotation=90)
 		plt.savefig("./" + model_name + ".jpg")
 
+
+
+
+
+
 	if model_name == "KNeighborsClassifier":
+
 
 		resultset = [key for key, value in params.items() if key.endswith("_increment") == False]
 		resultset.append("training_score")
@@ -62,10 +68,10 @@ def tune_params(data, params, loops, model_name):
 		# print(plot_df)
 
 		n_neighbors = params["n_neighbors"]
-		
+
 
 		for i in range(loops):
-			model = KNeighborsClassifier(n_neighbors=n_neighbors)
+			model = KNeighborsClassifier(n_neighbors=n_neighbors, weights = 'distance')
 			model.fit(X_train,Y_train)
 
 			# print ("training score: ", model.score(X_train,Y_train))
@@ -86,6 +92,15 @@ def tune_params(data, params, loops, model_name):
 		plt.legend(loc="upper left")
 		plt.savefig("./" + model_name + ".jpg")
 
+
+
+
+
+
+
+
+
+
 	if model_name == "AdaBoostClassifier":
 
 		resultset = [key for key, value in params.items() if key.endswith("_increment") == False]
@@ -97,7 +112,7 @@ def tune_params(data, params, loops, model_name):
 		# print(plot_df)
 
 		n_estimators = params["n_estimators"]
-		
+
 
 		for i in range(loops):
 			model = AdaBoostClassifier(n_estimators=100)
@@ -122,10 +137,10 @@ def tune_params(data, params, loops, model_name):
 		plt.savefig("./" + model_name + ".jpg")
 
 
-df = pd.read_csv("../results/cases_train_processed.csv")
-df = df.head(5000)
-df = df.drop(columns=["province", "country", "date_confirmation", "sex"])
-print(df)
+# df = pd.read_csv("../results/cases_train_processed.csv")
+# df = df.head(5000)
+# df = df.drop(columns=["province", "country", "date_confirmation", "sex"])
+# print(df)
 
 # params = {
 # 	"n_estimators": 10,
@@ -141,8 +156,8 @@ print(df)
 # }
 # tune_params(df, params, loops=10, model_name="KNeighborsClassifier")
 
-params = {
-	"n_estimators": 5,
-	"n_estimators_increment": 1,
-}
-tune_params(df, params, loops=10, model_name="AdaBoostClassifier")
+# params = {
+# 	"n_estimators": 5,
+# 	"n_estimators_increment": 1,
+# }
+# tune_params(df, params, loops=10, model_name="AdaBoostClassifier")
