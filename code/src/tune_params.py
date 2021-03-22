@@ -4,6 +4,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import confusion_matrix
+from sklearn import metrics
 
 def tune_params(data, params, loops, model_name):
 
@@ -25,17 +28,26 @@ def tune_params(data, params, loops, model_name):
 		max_depth = params["max_depth"]
 
 		for i in range(loops):
+
+			print ("Iteration: ", i)
 			model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth)
 			model.fit(X_train,Y_train)
 
 			# print ("training score: ", model.score(X_train,Y_train))
 			# print ("validation score: ", model.score(X_validation, Y_validation))
-
+			Y_train_predict = model.predict(X_train)
+			Y_validation_predict = model.predict(X_validation)
 			plot_df = plot_df.append({
 				"n_estimators": n_estimators,
 				"max_depth": max_depth,
 				"training_score": model.score(X_train,Y_train),
 				"validation_score": model.score(X_validation, Y_validation),
+				"training_precision": metrics.precision_score(Y_train,Y_train_predict,average='macro'),
+				"validation_precision": metrics.precision_score(Y_validation,Y_validation_predict,average='macro'),
+				"training_recall": metrics.recall_score(Y_train,Y_train_predict,average='macro'),
+				"validation_recall": metrics.recall_score(Y_validation,Y_validation_predict,average='macro'),
+				# "training_confusion_matrix": confusion_matrix(Y_train,Y_train_predict),
+				# "validation_confusion_matrix": confusion_matrix(Y_validation,Y_validation_predict),
 			}, ignore_index=True)
 
 			n_estimators += params["n_estimators_increment"]
@@ -50,11 +62,6 @@ def tune_params(data, params, loops, model_name):
 		plt.legend(loc="upper left")
 		plt.xticks(rotation=90)
 		plt.savefig("./" + model_name + ".jpg")
-
-
-
-
-
 
 	if model_name == "KNeighborsClassifier":
 
@@ -76,11 +83,18 @@ def tune_params(data, params, loops, model_name):
 
 			# print ("training score: ", model.score(X_train,Y_train))
 			# print ("validation score: ", model.score(X_validation, Y_validation))
-
+			Y_train_predict = model.predict(X_train)
+			Y_validation_predict = model.predict(X_validation)
 			plot_df = plot_df.append({
 				"n_neighbors": n_neighbors,
 				"training_score": model.score(X_train,Y_train),
 				"validation_score": model.score(X_validation, Y_validation),
+				"training_precision": metrics.precision_score(Y_train,Y_train_predict,average='macro'),
+				"validation_precision": metrics.precision_score(Y_validation,Y_validation_predict,average='macro'),
+				"training_recall": metrics.recall_score(Y_train,Y_train_predict,average='macro'),
+				"validation_recall": metrics.recall_score(Y_validation,Y_validation_predict,average='macro'),
+				"training_confusion_matrix": confusion_matrix(Y_train,Y_train_predict),
+				"validation_confusion_matrix": confusion_matrix(Y_validation,Y_validation_predict),
 			}, ignore_index=True)
 
 			n_neighbors += params["n_neighbors_increment"]
@@ -91,14 +105,6 @@ def tune_params(data, params, loops, model_name):
 		plt.plot(plot_df["n_neighbors"], plot_df["validation_score"], '-b', label="valid")
 		plt.legend(loc="upper left")
 		plt.savefig("./" + model_name + ".jpg")
-
-
-
-
-
-
-
-
 
 
 	if model_name == "AdaBoostClassifier":
@@ -115,16 +121,23 @@ def tune_params(data, params, loops, model_name):
 
 
 		for i in range(loops):
-			model = AdaBoostClassifier(n_estimators=100)
+			model = AdaBoostClassifier(n_estimators=n_estimators)
 			model.fit(X_train,Y_train)
 
 			# print ("training score: ", model.score(X_train,Y_train))
 			# print ("validation score: ", model.score(X_validation, Y_validation))
-
+			Y_train_predict = model.predict(X_train)
+			Y_validation_predict = model.predict(X_validation)
 			plot_df = plot_df.append({
 				"n_estimators": n_estimators,
 				"training_score": model.score(X_train,Y_train),
 				"validation_score": model.score(X_validation, Y_validation),
+				"training_precision": metrics.precision_score(Y_train,Y_train_predict,average='macro'),
+				"validation_precision": metrics.precision_score(Y_validation,Y_validation_predict,average='macro'),
+				"training_recall": metrics.recall_score(Y_train,Y_train_predict,average='macro'),
+				"validation_recall": metrics.recall_score(Y_validation,Y_validation_predict,average='macro'),
+				"training_confusion_matrix": confusion_matrix(Y_train,Y_train_predict),
+				"validation_confusion_matrix": confusion_matrix(Y_validation,Y_validation_predict),
 			}, ignore_index=True)
 
 			n_estimators += params["n_estimators_increment"]
