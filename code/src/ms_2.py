@@ -12,7 +12,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import cross_val_score
 from sklearn import metrics
-
+import datetime as dt
 # def convert_to_number(data):
 #     number = preprocessing.LabelEncoder()
 #     data['outcome'] = number.fit_transform(data.outcome)
@@ -38,19 +38,72 @@ def evaluation(x,y):
 
 def main():
     df = pd.read_csv("../results/cases_train_processed.csv")
-    df = df.head(5000)
-    print(df)
+    # df = df.head(5000)
+    df = df.loc[:, df.columns != 'province']
+    df = df.loc[:, df.columns != 'country']
+    df['date_confirmation'] = pd.to_datetime(df['date_confirmation'])
+    df['date_confirmation'] =(df['date_confirmation'] - dt.datetime(2020,1,1)).dt.total_seconds()
+    # df = df.loc[:, df.columns != 'date_confirmation']
+
+    # df_2 = df.select_dtypes(include=[object])
+    df_2 = df.loc[:, df.columns == 'sex']
+    print (df_2)
+    from sklearn import preprocessing
+    le = preprocessing.LabelEncoder()
+    df_3 = df_2.apply(le.fit_transform)
+    print (df_3)
+    enc = preprocessing.OneHotEncoder()
+    enc.fit(df_3)
+    onehotlabels = enc.transform(df_3).toarray()
+    print (onehotlabels)
+    df['sex_0'] = onehotlabels[:, 0]
+    df['sex_1'] = onehotlabels[:, 1]
+    print (df)
+    df = df.loc[:, df.columns != 'sex']
+
+
+    # from sklearn.preprocessing import MultiLabelBinarizer
+    # mlb = MultiLabelBinarizer()
+    # shift = mlb.fit_transform(df['sex'])
+    # print (shift)
+    # df['sex_0'] = shift[:, 0]
+    # df['sex_1'] = shift[:, 1]
+    #
+    # print (df)
+
+
+
+
+    # print(df)
+
+    # df =
+
     X = df.loc[:, df.columns != 'outcome']
     y = df['outcome']
+
+    # from sklearn.preprocessing import StandardScaler
+    # std_scaler = StandardScaler()
+    # X = pd.DataFrame(std_scaler.fit_transform(X), columns=X.columns)
+
+    from sklearn.preprocessing import MinMaxScaler
+    min_max_scaler = preprocessing.MinMaxScaler()
+    X = pd.DataFrame(min_max_scaler.fit_transform(X), columns=X.columns)
+
+    print (X)
+
+
     X_train, X_validation, Y_train, Y_validation = train_test_split(X, y, test_size=0.2, random_state=1)
+    #
+    # print(X_train)
+    # print(X_validation)
+    # print(Y_train)
+    # print(Y_validation)
 
-    print(X_train)
-    print(X_validation)
-    print(Y_train)
-    print(Y_validation)
+    knn = KNeighborsClassifier(n_neighbors=8, weights = 'distance')
+    knn.fit(X_train,Y_train)
 
-    # knn = KNeighborsClassifier(n_neighbors=3)
-    # print(knn.fit(X_train,Y_train))
+    print(knn.score(X_train,Y_train))
+    print(knn.score(X_validation,Y_validation))
 
 
 
