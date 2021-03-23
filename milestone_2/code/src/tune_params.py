@@ -55,7 +55,7 @@ def tune_params(data, params, loops, model_name):
 			print (plot_df)
 
 		# print (plot_df)
-		plot_df.to_csv("./" + model_name + ".csv" , index=False)
+		plot_df.to_csv("./plots/" + model_name + ".csv" , index=False)
 		params_tuple = "(" + plot_df["n_estimators"].astype(str) + "," + plot_df["max_depth"].astype(str) + ")"
 		print(params_tuple)
 
@@ -63,7 +63,7 @@ def tune_params(data, params, loops, model_name):
 		plt.plot(list(params_tuple), plot_df["validation_score"], '-b', label="valid")
 		plt.legend(loc="upper left")
 		plt.xticks(rotation=90)
-		plt.savefig("../plots" + model_name + ".jpg")
+		plt.savefig("../plots/" + model_name + ".jpg")
 
 	if model_name == "KNeighborsClassifier":
 
@@ -104,11 +104,11 @@ def tune_params(data, params, loops, model_name):
 			print (plot_df)
 
 		# print (plot_df)
-		plot_df.to_csv("./" + model_name + ".csv" , index=False)
+		plot_df.to_csv("./plots/" + model_name + ".csv" , index=False)
 		plt.plot(plot_df["n_neighbors"], plot_df["training_score"], '-r', label="train")
 		plt.plot(plot_df["n_neighbors"], plot_df["validation_score"], '-b', label="valid")
 		plt.legend(loc="upper left")
-		plt.savefig("../plots" + model_name + ".jpg")
+		plt.savefig("../plots/" + model_name + ".jpg")
 
 
 	if model_name == "AdaBoostClassifier":
@@ -149,11 +149,11 @@ def tune_params(data, params, loops, model_name):
 			print (plot_df)
 
 		# print (plot_df)
-		plot_df.to_csv("./" + model_name + ".csv" , index=False)
+		plot_df.to_csv("./plots/" + model_name + ".csv" , index=False)
 		plt.plot(plot_df["n_estimators"], plot_df["training_score"], '-r', label="train")
 		plt.plot(plot_df["n_estimators"], plot_df["validation_score"], '-b', label="valid")
 		plt.legend(loc="upper left")
-		plt.savefig("../plots" + model_name + ".jpg")
+		plt.savefig("../plots/" + model_name + ".jpg")
 
 
 # df = pd.read_csv("../results/cases_train_processed.csv")
