@@ -7,6 +7,7 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import confusion_matrix
 from sklearn import metrics
+from sklearn.tree import DecisionTreeClassifier
 
 def tune_params(data, params, loops, model_name):
 
@@ -121,12 +122,15 @@ def tune_params(data, params, loops, model_name):
 		plot_df = pd.DataFrame(columns=resultset)
 		# print(plot_df)
 
-		n_estimators = params["n_estimators"]
-
+		# n_estimators = params["n_estimators"]
+		max_depth = params["max_depth"]
 
 		for i in range(loops):
 			print ("Iteration: ", i)
-			model = AdaBoostClassifier(n_estimators=n_estimators)
+
+			base = DecisionTreeClassifier(max_depth=max_depth)
+
+			model = AdaBoostClassifier(base_estimator=base)
 			model.fit(X_train,Y_train)
 
 			# print ("training score: ", model.score(X_train,Y_train))
@@ -134,7 +138,8 @@ def tune_params(data, params, loops, model_name):
 			Y_train_predict = model.predict(X_train)
 			Y_validation_predict = model.predict(X_validation)
 			plot_df = plot_df.append({
-				"n_estimators": n_estimators,
+				# "n_estimators": n_estimators,
+				"max_depth": max_depth,
 				"training_score": model.score(X_train,Y_train),
 				"validation_score": model.score(X_validation, Y_validation),
 				"training_precision": metrics.precision_score(Y_train,Y_train_predict,average='macro'),
@@ -145,13 +150,14 @@ def tune_params(data, params, loops, model_name):
 				"validation_confusion_matrix": confusion_matrix(Y_validation,Y_validation_predict),
 			}, ignore_index=True)
 
-			n_estimators += params["n_estimators_increment"]
+			# n_estimators += params["n_estimators_increment"]
+			max_depth += params["max_depth_increment"]
 			print (plot_df)
 
 		# print (plot_df)
 		plot_df.to_csv("../plots/" + model_name + ".csv" , index=False)
-		plt.plot(plot_df["n_estimators"], plot_df["training_score"], '-r', label="train")
-		plt.plot(plot_df["n_estimators"], plot_df["validation_score"], '-b', label="valid")
+		plt.plot(plot_df["max_depth"], plot_df["training_score"], '-r', label="train")
+		plt.plot(plot_df["max_depth"], plot_df["validation_score"], '-b', label="valid")
 		plt.legend(loc="upper left")
 		plt.savefig("../plots/" + model_name + ".jpg")
 
