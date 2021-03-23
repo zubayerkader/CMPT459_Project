@@ -54,12 +54,12 @@ def Random_forest(df):
         df[col] = le.fit_transform(df[col])
     print(df)
     params = {
-    	"n_estimators": 100,
-    	"max_depth": 10,
-        "n_estimators_increment":100,
-        "max_depth_increment":0
+    	"n_estimators": 20,
+    	"max_depth": 3,
+        "n_estimators_increment":0,
+        "max_depth_increment":1
     }
-    tune_params(df, params, loops=10, model_name="RandomForestClassifier")
+    tune_params(df, params, loops=30, model_name="RandomForestClassifier")
     # remember there is a le.inverse_transform(y) to get back the string outcome
 
 def Ada_Boosting(df):
@@ -80,9 +80,9 @@ def main():
     df['date_confirmation'] = pd.to_datetime(df['date_confirmation'])
     df['date_confirmation'] =((df['date_confirmation'] - dt.datetime(2020,1,1)).dt.total_seconds())/(3600)
     print (df)
-    # Random_forest(df)
+    Random_forest(df)
     # Ada_Boosting(df)
-    Knn(df)
+    # Knn(df)
 
 
 
