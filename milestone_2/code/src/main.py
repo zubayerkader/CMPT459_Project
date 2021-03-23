@@ -42,10 +42,10 @@ def Knn(df):
     print (X)
 
     params = {
-    	"n_neighbors": 5,
+    	"n_neighbors": 1,
     	"n_neighbors_increment": 1,
     }
-    tune_params(X, params, loops=10, model_name="KNeighborsClassifier")
+    tune_params(X, params, loops=20, model_name="KNeighborsClassifier")
 
 def Random_forest(df):
     le = preprocessing.LabelEncoder()
@@ -80,9 +80,9 @@ def main():
     df['date_confirmation'] = pd.to_datetime(df['date_confirmation'])
     df['date_confirmation'] =((df['date_confirmation'] - dt.datetime(2020,1,1)).dt.total_seconds())/(3600)
     print (df)
-    Random_forest(df)
+    # Random_forest(df)
     # Ada_Boosting(df)
-    # Knn(df)
+    Knn(df)
 
 
 

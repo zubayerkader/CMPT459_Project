@@ -46,14 +46,16 @@ def tune_params(data, params, loops, model_name):
 				"validation_precision": metrics.precision_score(Y_validation,Y_validation_predict,average='macro'),
 				"training_recall": metrics.recall_score(Y_train,Y_train_predict,average='macro'),
 				"validation_recall": metrics.recall_score(Y_validation,Y_validation_predict,average='macro'),
-				# "training_confusion_matrix": confusion_matrix(Y_train,Y_train_predict),
-				# "validation_confusion_matrix": confusion_matrix(Y_validation,Y_validation_predict),
+				"training_confusion_matrix": confusion_matrix(Y_train,Y_train_predict),
+				"validation_confusion_matrix": confusion_matrix(Y_validation,Y_validation_predict),
 			}, ignore_index=True)
 
 			n_estimators += params["n_estimators_increment"]
 			max_depth += params["max_depth_increment"]
+			print (plot_df)
 
-		print (plot_df)
+		# print (plot_df)
+		plot_df.to_csv("./" + model_name + ".csv" , index=False)
 		params_tuple = "(" + plot_df["n_estimators"].astype(str) + "," + plot_df["max_depth"].astype(str) + ")"
 		print(params_tuple)
 
@@ -78,6 +80,7 @@ def tune_params(data, params, loops, model_name):
 
 
 		for i in range(loops):
+			print ("Iteration: ", i)
 			model = KNeighborsClassifier(n_neighbors=n_neighbors, weights = 'distance')
 			model.fit(X_train,Y_train)
 
@@ -98,9 +101,10 @@ def tune_params(data, params, loops, model_name):
 			}, ignore_index=True)
 
 			n_neighbors += params["n_neighbors_increment"]
+			print (plot_df)
 
-		print (plot_df)
-
+		# print (plot_df)
+		plot_df.to_csv("./" + model_name + ".csv" , index=False)
 		plt.plot(plot_df["n_neighbors"], plot_df["training_score"], '-r', label="train")
 		plt.plot(plot_df["n_neighbors"], plot_df["validation_score"], '-b', label="valid")
 		plt.legend(loc="upper left")
@@ -121,6 +125,7 @@ def tune_params(data, params, loops, model_name):
 
 
 		for i in range(loops):
+			print ("Iteration: ", i)
 			model = AdaBoostClassifier(n_estimators=n_estimators)
 			model.fit(X_train,Y_train)
 
@@ -141,9 +146,10 @@ def tune_params(data, params, loops, model_name):
 			}, ignore_index=True)
 
 			n_estimators += params["n_estimators_increment"]
+			print (plot_df)
 
-		print (plot_df)
-
+		# print (plot_df)
+		plot_df.to_csv("./" + model_name + ".csv" , index=False)
 		plt.plot(plot_df["n_estimators"], plot_df["training_score"], '-r', label="train")
 		plt.plot(plot_df["n_estimators"], plot_df["validation_score"], '-b', label="valid")
 		plt.legend(loc="upper left")
