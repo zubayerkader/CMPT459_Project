@@ -1,17 +1,13 @@
 import pandas as pd
-import matplotlib
-import scipy.stats
 import numpy as np
-import re
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from helper1 import *
+import warnings
+warnings.filterwarnings("ignore")
 
 def cleanImpute(dir):# pp = 0):
     cases_train = pd.read_csv(dir)
-
-    # print ("!!!!!!!!!!!!!!",  cases_train.shape[0])
-    # cases_train = cases_train.head(10000)
 
     # remove columns: additional_information and source
     cases_train = cases_train.drop(['additional_information', 'source'], axis=1)
@@ -23,8 +19,6 @@ def cleanImpute(dir):# pp = 0):
 
     # Impute Sex
     cases_train = imputeSex(cases_train)
-
-
 
     # Impute Country
     taiwan = cases_train[cases_train.province == 'Taiwan'].index
@@ -51,17 +45,11 @@ def cleanImpute(dir):# pp = 0):
     # Remove rows with missing latitude longitude
     latlong = cases_train[["latitude", "longitude"]]
     empty_idx = latlong[latlong.isnull().any(axis =1)].index
-    print(empty_idx)
-    cases_train = cases_train.drop(empty_idx)  #might crash.........................................
+    cases_train = cases_train.drop(empty_idx)  
 
     # print(cases_train)
     return cases_train
-    # if pp == 1:
-    #     ppp = cases_train.drop(['outcome'], axis=1)
-    # else:
-    #     ppp = cases_train
-    # ppp.dropna()
-    # print ("!!!!!!!!!!!!!!",  ppp.shape[0])
+
 
 
 def joinCasesLocation(cases_train, location, typee= 'train'):
@@ -71,26 +59,34 @@ def joinCasesLocation(cases_train, location, typee= 'train'):
     joined = pd.merge(cases_train, location,  how='left', left_on=['province','country'], right_on = ['Province_State','Country_Region'])
     nan_idx = joined[joined.isnull().any(axis=1)].index
     joined_nan = cases_train.iloc[nan_idx]
+    print (nan_idx)
     distances = joined_nan.apply(distance, axis=1, stations=location)
     smallest = distances.idxmin(axis=1)
     smallest = pd.DataFrame(smallest, columns = ["closest"])
     smallest_dist_temp = smallest.join(location, on = "closest" , how = 'left')
     smallest_dist_temp = smallest_dist_temp.join(joined_nan,  how = 'left')
     smallest_dist_temp = smallest_dist_temp.drop(['closest'], axis=1)
-    joined = joined.dropna()
-    joined = pd.concat([joined, smallest_dist_temp])
+    # joined = smallest_dist_temp.combine_first(joined)
+    print (joined.iloc[nan_idx])
+
+    smallest_dist_temp = smallest_dist_temp[list(joined.columns.values)]
+    joined.iloc[nan_idx] = smallest_dist_temp.loc[smallest_dist_temp.index]
+    print(smallest_dist_temp.index)
+
+    print(smallest_dist_temp.loc[smallest_dist_temp.index])
+
+    
     joined = joined.drop(['Province_State', 'Country_Region', 'Lat', 'Long_', 'Last_Update', 'Combined_Key'], axis=1)
     joined.to_csv('./joined.csv', index=False)
     if typee == 'test':
         cases_train['outcome'] = np.nan
-    # print(joined.dropna().shape[0])
-
-    print(joined)
     return joined
 
 def main():
     cases_train = cleanImpute('../data/cases_train.csv')
     cases_test = cleanImpute('../data/cases_test.csv')
+    # cases_train.to_csv('./cases_train_tempppp.csv',index=False)
+    
 
     # handling lat and long outliers
     probable_outliers = cases_train[cases_train['longitude'].between(-40, -20)]

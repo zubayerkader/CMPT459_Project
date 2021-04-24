@@ -46,11 +46,14 @@ def imputeAge(val, age_mean, age_std):
         return val.age
 
 def imputeSexValue(row, male_probability):
-    r = random.uniform(0, 1)
-    if (r < male_probability):
-        return 'male'
+    if pd.isna(row.sex):
+        r = random.uniform(0, 1)
+        if (r < male_probability):
+            return 'male'
+        else:
+            return 'female'
     else:
-        return 'female'
+        return row.sex
 
 def imputeSex(cases_train):
     sex = cases_train.sex
