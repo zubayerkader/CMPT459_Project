@@ -41,6 +41,8 @@ def cleanAge(age):
 def imputeAge(val, age_mean, age_std):
     if pd.isna(val.age):
         ret = np.random.normal(age_mean, age_std, 1)
+        while (int(ret[0])<0):
+            ret = np.random.normal(age_mean, age_std, 1)
         return int(ret[0])
     else:
         return val.age

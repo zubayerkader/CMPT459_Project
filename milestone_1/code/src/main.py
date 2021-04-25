@@ -45,7 +45,7 @@ def cleanImpute(dir):# pp = 0):
     # Remove rows with missing latitude longitude
     latlong = cases_train[["latitude", "longitude"]]
     empty_idx = latlong[latlong.isnull().any(axis =1)].index
-    cases_train = cases_train.drop(empty_idx)  
+    cases_train = cases_train.drop(empty_idx)
 
     # print(cases_train)
     return cases_train
@@ -75,9 +75,9 @@ def joinCasesLocation(cases_train, location, typee= 'train'):
 
     print(smallest_dist_temp.loc[smallest_dist_temp.index])
 
-    
+
     joined = joined.drop(['Province_State', 'Country_Region', 'Lat', 'Long_', 'Last_Update', 'Combined_Key'], axis=1)
-    joined.to_csv('./joined.csv', index=False)
+    # joined.to_csv('./joined.csv', index=False)
     if typee == 'test':
         cases_train['outcome'] = np.nan
     return joined
@@ -86,7 +86,7 @@ def main():
     cases_train = cleanImpute('../data/cases_train.csv')
     cases_test = cleanImpute('../data/cases_test.csv')
     # cases_train.to_csv('./cases_train_tempppp.csv',index=False)
-    
+
 
     # handling lat and long outliers
     probable_outliers = cases_train[cases_train['longitude'].between(-40, -20)]
