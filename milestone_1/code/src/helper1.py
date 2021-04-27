@@ -85,7 +85,7 @@ def imputeDateConfrm(row, cases_train):
     country_table = cases_train[cases_train.country == country]
     dc = country_table.date_confirmation.mode()
     if dc.shape[0] == 0:
-        return "unknown"
+        return cases_train.date_confirmation.mode()
     else:
         return dc
 

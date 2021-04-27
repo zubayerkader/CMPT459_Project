@@ -1,0 +1,10 @@
+,params,test_accuracy,test_recall_overall,test_f1_deceased,test_recall_deceased,test_precison
+33,"{'base_estimator__criterion': 'entropy', 'base_estimator__max_depth': 16, 'n_estimators': 30}",0.8007529366480126,0.8007529366480126,0.0833679359631538,0.0582340872574465,0.7953510257762277
+16,"{'base_estimator__criterion': 'gini', 'base_estimator__max_depth': 18, 'n_estimators': 50}",0.8037232737791207,0.8037232737791207,0.0825008605798213,0.0586782845136571,0.7981868407590775
+37,"{'base_estimator__criterion': 'entropy', 'base_estimator__max_depth': 18, 'n_estimators': 50}",0.8043842560142439,0.8043842560142439,0.0818695154894123,0.0577886540600667,0.7988788221801374
+19,"{'base_estimator__criterion': 'gini', 'base_estimator__max_depth': 20, 'n_estimators': 50}",0.8049908391286233,0.8049908391286233,0.0785295341820963,0.0562335928809788,0.7995001398460524
+41,"{'base_estimator__criterion': 'entropy', 'base_estimator__max_depth': 20, 'n_estimators': 60}",0.8051866952820526,0.8051866952820526,0.0783879688726212,0.0557903843777036,0.7995948215618023
+39,"{'base_estimator__criterion': 'entropy', 'base_estimator__max_depth': 20, 'n_estimators': 30}",0.8052030103051215,0.8052030103051215,0.077182458174221,0.0546755654430849,0.7993705492548782
+0,"{'base_estimator__criterion': 'gini', 'base_estimator__max_depth': 8, 'n_estimators': 30}",0.696293030330444,0.696293030330444,0.0545297921097732,0.2267311827956989,0.7390437740905764
+22,"{'base_estimator__criterion': 'entropy', 'base_estimator__max_depth': 8, 'n_estimators': 50}",0.698664979686023,0.698664979686023,0.0528730189546312,0.2100533926585094,0.7440990551416073
+21,"{'base_estimator__criterion': 'entropy', 'base_estimator__max_depth': 8, 'n_estimators': 30}",0.6997965565193939,0.6997965565193939,0.0519941708943589,0.2100472129526634,0.7426098539480156
